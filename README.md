@@ -2,73 +2,71 @@
 
 [![JitPack](https://jitpack.io/v/irnoti/andriod-sdk.svg)](https://jitpack.io/#irnoti/andriod-sdk)
 
-<div dir="rtl" align="right">
+The official IRNoti (Iran Notification) SDK for Android apps. Use it to register devices, receive and display Firebase notifications, segment users with Topics, Tags, External ID and Aliases, send behavioral events, and report delivery and click statistics.
 
-SDK رسمی ایران‌ناتیفیکیشن (IRNoti) برای اپلیکیشن‌های Android است. با آن می‌توانید دستگاه را ثبت کنید، اعلان Firebase را دریافت و نمایش دهید، کاربران را با Topic، Tag، External ID و Alias دسته‌بندی کنید، رویدادهای رفتاری را بفرستید و گزارش تحویل و کلیک اعلان را ثبت کنید.
+Current version: **1.0.0**
 
-نسخه فعلی: **1.0.0**
+## Table of contents
 
-## فهرست
+- [Features](#features)
+- [Requirements](#requirements)
+- [Quick start](#quick-start)
+- [Installation](#installation)
+- [Connecting Firebase](#connecting-firebase)
+- [Initializing the SDK](#initializing-the-sdk)
+- [Notification permission on Android 13+](#notification-permission-on-android-13-and-above)
+- [Sending your first notification](#sending-your-first-notification)
+- [Public methods](#public-methods)
+- [Topics](#topics)
+- [External ID and Aliases](#external-id-and-aliases)
+- [Tags](#tags)
+- [Events](#events)
+- [Links, deep links and action buttons](#links-deep-links-and-action-buttons)
+- [If your app already has a Firebase service](#if-your-app-already-has-a-firebase-service)
+- [Using the SDK from Java](#using-the-sdk-from-java)
+- [Troubleshooting](#troubleshooting)
+- [Security](#security)
+- [License](#license)
 
-- [قابلیت‌ها](#قابلیتها)
-- [پیش‌نیازها](#پیشنیازها)
-- [راه‌اندازی سریع](#راهاندازی-سریع)
-- [نصب](#نصب)
-- [اتصال Firebase](#اتصال-firebase)
-- [راه‌اندازی SDK](#راهاندازی-sdk)
-- [مجوز اعلان در Android 13+](#مجوز-اعلان-در-android-13-و-بالاتر)
-- [ارسال اولین اعلان](#ارسال-اولین-اعلان)
-- [متدهای عمومی](#متدهای-عمومی)
-- [Topic](#topic)
-- [External ID و Alias](#external-id-و-alias)
-- [Tag](#tag)
-- [رویدادها](#رویدادها)
-- [لینک، Deep Link و دکمه‌ها](#لینک-deep-link-و-دکمههای-اعلان)
-- [اگر اپ شما سرویس Firebase دارد](#اگر-اپ-شما-سرویس-firebase-دارد)
-- [استفاده در Java](#استفاده-در-java)
-- [رفع اشکال](#رفع-اشکال)
+## Features
 
-## قابلیت‌ها
-
-| قابلیت | توضیح |
+| Feature | Description |
 |---|---|
-| ثبت خودکار دستگاه | دریافت توکن FCM، ثبت آن در ایران‌ناتیفیکیشن و به‌روزرسانی خودکار هنگام تغییر توکن |
-| نمایش اعلان | عنوان، متن، تصویر بزرگ و آیکن؛ در حالت Foreground و Background |
-| دکمه‌های اعلان | حداکثر دو دکمه عملیاتی |
-| لینک و Deep Link | لینک وب و Deep Link (Custom Scheme یا App Link) |
-| Topic | عضویت و لغو عضویت و دریافت فهرست Topicهای دستگاه |
-| External ID و Alias | اتصال دستگاه به شناسه کاربر خودتان و چند شناسه برچسب‌دار مثل `phone` |
-| Tag | برچسب‌های ساده برای بخش‌بندی (مثل `plan=pro`) |
-| رویداد | ارسال رویدادهای رفتاری همراه با پارامتر |
-| گزارش | ثبت تحویل، کلیک، بستن و دکمه با صف ماندگار و تلاش مجدد خودکار |
-| Kotlin و Java | API عمومی برای هر دو زبان |
+| Automatic device registration | Fetches the FCM token, registers it with IRNoti and updates it automatically when the token changes |
+| Notification display | Title, body, large image and icon, in both foreground and background states |
+| Action buttons | Up to two action buttons per notification |
+| Links and deep links | Web links and deep links (custom scheme or App Link) |
+| Topics | Subscribe, unsubscribe and list the device's topics |
+| External ID and Aliases | Link a device to your own user ID plus several labeled identifiers such as `phone` |
+| Tags | Simple labels for segmentation (for example `plan=pro`) |
+| Events | Send behavioral events with parameters |
+| Reporting | Delivery, click, dismiss and button reports, backed by a persistent queue with automatic retry |
+| Kotlin and Java | Public API usable from both languages |
 
-## پیش‌نیازها
+## Requirements
 
-1. یک **سازمان** و یک **پروژه** در ایران‌ناتیفیکیشن که سرویس «پوش‌نوتیفیکیشن» برایش فعال شده است.
-2. یک **اپ** در همان سرویس (با فایل JSON حساب سرویس Firebase). بعد از ساخت، **کلید عمومی** اپ (`pk_live_…`) را از پنل بردارید.
-3. یک پروژه Firebase و یک Android App در آن با Package Name دقیق اپ شما، و فایل `google-services.json` همان Android App.
-4. Android 6.0 یا بالاتر (`minSdk 23`) و `compileSdk 35` یا بالاتر.
+1. An **organization** and a **project** in IRNoti with the "Push Notification" service enabled.
+2. An **app** in that service (created with your Firebase service-account JSON file). After creating it, copy the app's **public key** (`pk_live_…`) from the dashboard.
+3. A Firebase project with an Android app whose package name exactly matches your app, and that Android app's `google-services.json` file.
+4. Android 6.0 or higher (`minSdk 23`) and `compileSdk 35` or higher.
 
 > [!IMPORTANT]
-> پروژه Firebase اپ و پروژه Firebase‌ای که حساب سرویسش را در ایران‌ناتیفیکیشن ثبت کرده‌اید باید یکی باشند.
+> The Firebase project of your app and the Firebase project whose service account you registered in IRNoti must be the same project.
 
 > [!CAUTION]
-> فقط **کلید عمومی** (`pk_live_…`) را داخل اپ بگذارید. فایل حساب سرویس Firebase و لینک بروکر محرمانه‌اند و نباید داخل APK، سورس اپ یا GitHub قرار بگیرند.
+> Only put the **public key** (`pk_live_…`) inside the app. The Firebase service-account file and the broker link are secret and must never be included in the APK, the app source or GitHub.
 
-## راه‌اندازی سریع
+## Quick start
 
-1. Dependency را از JitPack اضافه کنید.
-2. `google-services.json` را در پوشه `app/` بگذارید و پلاگین Google Services را فعال کنید.
-3. در `Application.onCreate()` متد `Irnoti.init()` را با کلید عمومی صدا بزنید.
-4. در Android 13+ مجوز اعلان را بگیرید.
-5. اپ را روی دستگاه واقعی اجرا کنید و از پنل ایران‌ناتیفیکیشن یک پیام آزمایشی بفرستید.
+1. Add the dependency from JitPack.
+2. Put `google-services.json` in the `app/` folder and enable the Google Services plugin.
+3. Call `Irnoti.init()` with your public key in `Application.onCreate()`.
+4. On Android 13+, request the notification permission.
+5. Run the app on a real device and send a test message from the IRNoti dashboard.
 
-## نصب
+## Installation
 
-در `settings.gradle.kts`:
-
-</div>
+In `settings.gradle.kts`:
 
 ```kotlin
 dependencyResolutionManagement {
@@ -80,11 +78,7 @@ dependencyResolutionManagement {
 }
 ```
 
-<div dir="rtl" align="right">
-
-در `app/build.gradle.kts`:
-
-</div>
+In `app/build.gradle.kts`:
 
 ```kotlin
 dependencies {
@@ -92,15 +86,11 @@ dependencies {
 }
 ```
 
-<div dir="rtl" align="right">
+> The repository is named `andriod-sdk` (with this exact spelling) and the artifact uses the same name.
 
-> نام مخزن `andriod-sdk` است (با همین املا) و artifact هم همین نام را دارد.
+## Connecting Firebase
 
-## اتصال Firebase
-
-اگر اپ شما Firebase دارد این مرحله انجام شده است. در غیر این صورت:
-
-</div>
+If your app already uses Firebase, this step is already done. Otherwise:
 
 ```kotlin
 // build.gradle.kts (root)
@@ -110,13 +100,9 @@ plugins { id("com.google.gms.google-services") version "4.4.2" apply false }
 plugins { id("com.google.gms.google-services") }
 ```
 
-<div dir="rtl" align="right">
+## Initializing the SDK
 
-## راه‌اندازی SDK
-
-در کلاس `Application` (و در `AndroidManifest.xml` به آن اشاره کنید):
-
-</div>
+In your `Application` class (and reference it in `AndroidManifest.xml`):
 
 ```kotlin
 class App : Application() {
@@ -126,22 +112,18 @@ class App : Application() {
             this,
             IrnotiConfig(
                 appKey = "pk_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                smallIcon = R.drawable.ic_stat_notify, // آیکن تک‌رنگ
+                smallIcon = R.drawable.ic_stat_notify, // monochrome icon
             ),
         )
     }
 }
 ```
 
-<div dir="rtl" align="right">
+`init` is only needed once at process start. Device registration runs in the background, and a network error will not crash the app; registration is retried the next time the app starts.
 
-`init` فقط یک بار در شروع پروسه لازم است. ثبت دستگاه در پس‌زمینه انجام می‌شود و خطای شبکه اپ را نمی‌شکند؛ در شروع بعدی اپ دوباره تلاش می‌شود.
+## Notification permission on Android 13 and above
 
-## مجوز اعلان در Android 13 و بالاتر
-
-مجوز `POST_NOTIFICATIONS` را خودتان از کاربر بگیرید (از داخل یک Activity) و نتیجه را به SDK بگویید:
-
-</div>
+Request the `POST_NOTIFICATIONS` permission from the user yourself (from inside an Activity) and report the result to the SDK:
 
 ```kotlin
 private val askPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -153,133 +135,105 @@ fun requestNotificationPermission() {
 }
 ```
 
-<div dir="rtl" align="right">
+## Sending your first notification
 
-## ارسال اولین اعلان
-
-از پنل ایران‌ناتیفیکیشن (بخش پوش پروژه) یا از سرور خودتان با کلید API پروژه:
-
-</div>
+From the IRNoti dashboard (the project's Push section), or from your own server using the project API key:
 
 ```bash
 curl -X POST "https://api.irnoti.ir/v1/sdk-apps/APP_ID/send" \
   -H "Authorization: Bearer irn_live_xxx" \
   -H "Content-Type: application/json" \
   -d '{
-    "message": { "title": "سلام", "body": "اولین اعلان شما", "url": "https://example.com" },
+    "message": { "title": "Hello", "body": "Your first notification", "url": "https://example.com" },
     "target": { "all": true }
   }'
 ```
 
-<div dir="rtl" align="right">
+## Public methods
 
-## متدهای عمومی
-
-| متد | توضیح |
+| Method | Description |
 |---|---|
-| `Irnoti.init(context, config)` | راه‌اندازی و ثبت دستگاه |
-| `Irnoti.setNotificationsEnabled(Boolean)` | اطلاع از وضعیت مجوز اعلان |
-| `Irnoti.identify(externalId, aliases)` | اتصال دستگاه به کاربر شما |
-| `Irnoti.logout()` | جدا کردن کاربر از دستگاه |
-| `Irnoti.subscribe(topic)` / `unsubscribe(topic)` | عضویت و لغو عضویت در Topic |
-| `Irnoti.setTags(map)` | تنظیم یا حذف (مقدار `null`) Tag |
-| `Irnoti.track(name, props)` | ارسال رویداد |
-| `Irnoti.unregister()` | لغو کامل ثبت دستگاه |
+| `Irnoti.init(context, config)` | Initialize the SDK and register the device |
+| `Irnoti.setNotificationsEnabled(Boolean)` | Tell the SDK whether the notification permission is granted |
+| `Irnoti.identify(externalId, aliases)` | Link the device to your user |
+| `Irnoti.logout()` | Detach the user from the device |
+| `Irnoti.subscribe(topic)` / `unsubscribe(topic)` | Subscribe to or unsubscribe from a topic |
+| `Irnoti.setTags(map)` | Set tags, or remove one by passing a `null` value |
+| `Irnoti.track(name, props)` | Send an event |
+| `Irnoti.unregister()` | Fully unregister the device |
 
-همه متدها غیرهمزمان‌اند و قبل از ثبت دستگاه هم امن هستند (در صف قرار می‌گیرند).
+All methods are asynchronous and safe to call before the device is registered (calls are queued).
 
-## Topic
-
-</div>
+## Topics
 
 ```kotlin
 Irnoti.subscribe("news")
 Irnoti.unsubscribe("news")
 ```
 
-<div dir="rtl" align="right">
+Topic names may contain English letters, digits and `_ . -`, up to 64 characters. Each device can join at most 100 topics.
 
-نام Topic: حروف انگلیسی، عدد و `_ . -` تا ۶۴ نویسه؛ حداکثر ۱۰۰ Topic برای هر دستگاه.
+## External ID and Aliases
 
-## External ID و Alias
-
-بعد از ورود کاربر:
-
-</div>
+After the user signs in:
 
 ```kotlin
 Irnoti.identify("user-123", mapOf("phone" to "09120000000", "tier" to "gold"))
-// هنگام خروج:
+// When the user signs out:
 Irnoti.logout()
 ```
 
-<div dir="rtl" align="right">
-
-## Tag
-
-</div>
+## Tags
 
 ```kotlin
-Irnoti.setTags(mapOf("plan" to "pro", "city" to "tehran", "old_tag" to null)) // null = حذف
+Irnoti.setTags(mapOf("plan" to "pro", "city" to "tehran", "old_tag" to null)) // null = remove
 ```
 
-<div dir="rtl" align="right">
+Up to 50 tags; keys up to 40 characters and values up to 256 characters.
 
-حداکثر ۵۰ Tag؛ کلید تا ۴۰ و مقدار تا ۲۵۶ نویسه.
-
-## رویدادها
-
-</div>
+## Events
 
 ```kotlin
 Irnoti.track("purchase", mapOf("amount" to 120000, "currency" to "IRR"))
 ```
 
-<div dir="rtl" align="right">
+The parameters (`props`) can be at most 4 KB.
 
-پارامترها (`props`) حداکثر ۴ کیلوبایت‌اند.
+## Links, deep links and action buttons
 
-## لینک، Deep Link و دکمه‌های اعلان
+Message fields (when sending from the dashboard or the API):
 
-فیلدهای پیام (در ارسال از پنل یا API):
-
-| فیلد | توضیح |
+| Field | Description |
 |---|---|
-| `title`, `body` | عنوان و متن |
-| `image` | آدرس `https` تصویر بزرگ |
-| `url` | لینک وب که با لمس اعلان باز می‌شود |
-| `deeplink` | آدرس مطلق با Scheme اپ (مثل `myapp://orders/5`)؛ بر `url` اولویت دارد |
-| `actions` | حداکثر دو دکمه: `[{"id":"open","title":"مشاهده","url":"myapp://orders/5"}]` |
-| `channel` | شناسه کانال اعلان اندروید |
-| `extra` | داده سفارشی به‌صورت کلید-مقدار رشته‌ای |
+| `title`, `body` | Title and body text |
+| `image` | `https` URL of the large image |
+| `url` | Web link opened when the notification is tapped |
+| `deeplink` | Absolute URI with your app's scheme (for example `myapp://orders/5`); takes priority over `url` |
+| `actions` | Up to two buttons: `[{"id":"open","title":"View","url":"myapp://orders/5"}]` |
+| `channel` | Android notification channel ID |
+| `extra` | Custom data as string key-value pairs |
 
-برای Deep Link، Intent Filter مربوط به Scheme را در Activity مقصد تعریف کنید.
+For deep links, declare an intent filter for your scheme on the destination Activity.
 
-## اگر اپ شما سرویس Firebase دارد
+## If your app already has a Firebase service
 
-سرویس SDK به‌صورت خودکار در Manifest کتابخانه ثبت می‌شود. اگر خودتان `FirebaseMessagingService` دارید، سرویس خودتان را اعلام کنید و این سه فراخوانی را اضافه کنید:
-
-</div>
+The SDK's service is registered automatically in the library manifest. If you already have your own `FirebaseMessagingService`, declare your service and add these calls:
 
 ```kotlin
 class MyMessagingService : FirebaseMessagingService() {
     override fun onNewToken(token: String) {
         Irnoti.onNewToken(token)
-        // کد شما
+        // your code
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
         if (Irnoti.isIrnotiMessage(message.data)) Irnoti.handleMessage(this, message.data)
-        else { /* پیام‌های خودتان */ }
+        else { /* your own messages */ }
     }
 }
 ```
 
-<div dir="rtl" align="right">
-
-## استفاده در Java
-
-</div>
+## Using the SDK from Java
 
 ```java
 Irnoti.init(this, new IrnotiConfig("pk_live_xxx", R.drawable.ic_stat_notify));
@@ -287,25 +241,21 @@ Irnoti.identify("user-123");
 Irnoti.subscribe("news");
 ```
 
-<div dir="rtl" align="right">
+## Troubleshooting
 
-## رفع اشکال
-
-| مشکل | علت و راه‌حل |
+| Problem | Cause and solution |
 |---|---|
-| دستگاه در پنل دیده نمی‌شود | کلید عمومی را بررسی کنید؛ اپ باید در سرویس فعال پروژه ساخته شده باشد. اینترنت و دسترسی به `api.irnoti.ir` را بررسی کنید. |
-| ثبت با خطای ۴۰۳ رد می‌شود | سرویس پوش پروژه غیرفعال/منقضی شده یا سقف دستگاه بسته فعلی پر شده است؛ وضعیت را در پنل ببینید. |
-| اعلان نمی‌رسد | پروژه Firebase اپ و حساب سرویس ثبت‌شده باید یکی باشند. مجوز اعلان (Android 13+) و Battery Optimization را بررسی کنید. |
-| اعلان نمایش داده نمی‌شود ولی ارسال موفق است | `smallIcon` باید یک drawable تک‌رنگ معتبر باشد. |
-| لینک یا Deep Link باز نمی‌شود | SDK کلیک را با یک Activity واسط ثبت و بعد لینک را باز می‌کند؛ مطمئن شوید Scheme در یک Activity مقصد با Intent Filter تعریف شده است. |
+| The device does not appear in the dashboard | Check the public key; the app must be created in the project's active service. Check internet access and that `api.irnoti.ir` is reachable. |
+| Registration fails with a 403 error | The project's push service is disabled or expired, or the device limit of the current plan has been reached. Check the status in the dashboard. |
+| Notifications are not delivered | The app's Firebase project and the registered service account must be the same project. Check the notification permission (Android 13+) and Battery Optimization. |
+| Notification is not shown although sending succeeded | `smallIcon` must be a valid monochrome drawable. |
+| A link or deep link does not open | The SDK records the click through an intermediate Activity and then opens the link. Make sure the scheme is declared with an intent filter on a destination Activity. |
 
-## امنیت
+## Security
 
-- فقط کلید عمومی داخل اپ قرار می‌گیرد؛ توکن دستگاه (`dt_…`) در حافظه خصوصی اپ ذخیره می‌شود. برای اپ‌های حساس `android:allowBackup="false"` بگذارید.
-- ارتباط فقط با `https` است.
+- Only the public key goes inside the app. The device token (`dt_…`) is stored in the app's private storage. For sensitive apps, set `android:allowBackup="false"`.
+- All communication uses `https` only.
 
-## مجوز استفاده
+## License
 
-مجوز استفاده را مالک مخزن تعیین می‌کند (فایل `LICENSE`).
-
-</div>
+The license is determined by the repository owner (see the `LICENSE` file).

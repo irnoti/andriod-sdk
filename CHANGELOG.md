@@ -1,4 +1,4 @@
-# تغییرات
+# Changelog
 
 ## 1.0.0
-- نسخهٔ اول: ثبت دستگاه، به‌روزرسانی توکن FCM، Topic، Tag، External ID و Alias، رویداد، نمایش اعلان (تصویر، دو دکمه، Deep Link) و گزارش تحویل/کلیک با صف ماندگار.
+- Initial release: device registration, FCM token updates, Topics, Tags, External ID and Aliases, events, notification display (image, two action buttons, deep links) and delivery/click reporting with a persistent queue.
