@@ -1,0 +1,1 @@
+-keep class ir.irnoti.sdk.** { *; }

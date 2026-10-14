@@ -1,0 +1,4 @@
+jdk:
+  - openjdk17
+install:
+  - ./gradlew -Pgroup=com.github.irnoti -Pversion=$VERSION :irnoti-sdk:publishToMavenLocal || gradle -Pgroup=com.github.irnoti -Pversion=$VERSION :irnoti-sdk:publishToMavenLocal
