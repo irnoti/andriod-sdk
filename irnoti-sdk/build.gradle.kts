@@ -34,7 +34,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.irnoti"
                 artifactId = "andriod-sdk"
-                version = project.findProperty("version")?.toString()?.takeIf { it != "unspecified" } ?: "1.0.0"
+                version = project.findProperty("version")?.toString()?.takeIf { it != "unspecified" } ?: "1.1.0"
             }
         }
     }

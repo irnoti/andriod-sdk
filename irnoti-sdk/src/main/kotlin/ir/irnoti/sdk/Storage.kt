@@ -28,7 +28,29 @@ internal class Storage(context: Context) {
         get() = sp.getLong("last_sync", 0)
         set(v) = sp.edit().putLong("last_sync", v).apply()
 
-    fun clearDevice() = sp.edit().remove("device_id").remove("device_token").remove("push_token").remove("last_sync").apply()
+    /** Transport the server currently knows for this device: "fcm" or "direct". */
+    var provider: String?
+        get() = sp.getString("provider", null)
+        set(v) = sp.edit().putString("provider", v).apply()
+
+    /** When FCM reachability was last probed (AUTO transport). */
+    var lastProbe: Long
+        get() = sp.getLong("last_probe", 0)
+        set(v) = sp.edit().putLong("last_probe", v).apply()
+
+    fun clearDevice() = sp.edit().remove("device_id").remove("device_token").remove("push_token").remove("last_sync").remove("provider").apply()
+
+    /**
+     * Remembers the ids of the last 100 messages received over the direct channel. The server resends a message on every reconnect
+     * until its delivery report arrives, so this is what keeps the user from seeing it twice. Returns true the first time an id is seen.
+     */
+    @Synchronized
+    fun firstSight(id: String): Boolean {
+        val seen = (sp.getString("seen", "") ?: "").split(',').filter { it.isNotEmpty() }
+        if (id in seen) return false
+        sp.edit().putString("seen", (seen + id).takeLast(100).joinToString(",")).apply()
+        return true
+    }
 
     // ---- report queue (delivery/click receipts waiting for the network) ----
     @Synchronized

@@ -4,7 +4,7 @@
 
 The official IRNoti (Iran Notification) SDK for Android apps. Use it to register devices, receive and display Firebase notifications, segment users with Topics, Tags, External ID and Aliases, send behavioral events, and report delivery and click statistics.
 
-Current version: **1.0.0**
+Current version: **1.1.0**
 
 ## Table of contents
 
@@ -15,6 +15,7 @@ Current version: **1.0.0**
 - [Connecting Firebase](#connecting-firebase)
 - [Initializing the SDK](#initializing-the-sdk)
 - [Notification permission on Android 13+](#notification-permission-on-android-13-and-above)
+- [Delivery without Firebase (direct transport)](#delivery-without-firebase-direct-transport)
 - [Sending your first notification](#sending-your-first-notification)
 - [Public methods](#public-methods)
 - [Topics](#topics)
@@ -33,6 +34,7 @@ Current version: **1.0.0**
 | Feature | Description |
 |---|---|
 | Automatic device registration | Fetches the FCM token, registers it with IRNoti and updates it automatically when the token changes |
+| Works without Firebase | Devices that cannot reach FCM receive the same notifications through IRNoti's own channel, automatically |
 | Notification display | Title, body, large image and icon, in both foreground and background states |
 | Action buttons | Up to two action buttons per notification |
 | Links and deep links | Web links and deep links (custom scheme or App Link) |
@@ -47,7 +49,7 @@ Current version: **1.0.0**
 
 1. An **organization** and a **project** in IRNoti with the "Push Notification" service enabled.
 2. An **app** in that service (created with your Firebase service-account JSON file). After creating it, copy the app's **public key** (`pk_live_…`) from the dashboard.
-3. A Firebase project with an Android app whose package name exactly matches your app, and that Android app's `google-services.json` file.
+3. A Firebase project with an Android app whose package name exactly matches your app, and that Android app's `google-services.json` file. (Optional if you use `Transport.DIRECT` only.)
 4. Android 6.0 or higher (`minSdk 23`) and `compileSdk 35` or higher.
 
 > [!IMPORTANT]
@@ -82,7 +84,7 @@ In `app/build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.irnoti:andriod-sdk:1.0.0")
+    implementation("com.github.irnoti:andriod-sdk:1.1.0")
 }
 ```
 
@@ -134,6 +136,41 @@ fun requestNotificationPermission() {
     if (Build.VERSION.SDK_INT >= 33) askPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
 }
 ```
+
+## Delivery without Firebase (direct transport)
+
+FCM keeps its own connection to `mtalk.google.com:5228`. On networks that block it (for example in Iran without a VPN) FCM notifications never arrive. The SDK handles this for you:
+
+| `transport` | Behavior |
+|---|---|
+| `Transport.AUTO` (default) | Uses FCM when the device can reach Google's push servers, otherwise IRNoti's own channel. The check is repeated every 30 minutes and on every app start, so a device moves back to FCM as soon as it can. |
+| `Transport.FCM` | FCM only (SDK 1.0 behavior). |
+| `Transport.DIRECT` | IRNoti's own channel only. Firebase is never used and `google-services.json` is not needed. |
+
+```kotlin
+IrnotiConfig(
+    appKey = "pk_live_xxx",
+    smallIcon = R.drawable.ic_stat_notify,
+    transport = Transport.AUTO,          // default
+    directService = true,                // default: instant delivery through a foreground service
+    directNotificationTitle = "اتصال برای دریافت اعلان‌ها",
+    directNotificationText = "برنامه آماده‌ی دریافت اعلان است",
+)
+```
+
+How it works:
+
+1. A device on the direct transport holds one HTTPS request (`GET /devices/{id}/stream`, Server-Sent Events) open. IRNoti sends each message through it and pings every 25 seconds; the SDK reconnects with exponential backoff.
+2. Messages wait in a queue on the server until the device acknowledges them (the normal `delivered` report) or their `ttlSeconds` expires, so a device that was offline gets them when it reconnects. A message is shown once even if the server resends it.
+3. With `directService = true` the connection lives in a foreground service, which Android requires to show one minimal, silent notification (title and text above). Without it the connection only exists while the app process does; a periodic catch-up job (about every 15 minutes) and a boot receiver cover the rest.
+
+Things to know:
+
+- Devices on the direct transport are Android only; iOS and web always use APNs / FCM.
+- Some manufacturers (Xiaomi, Huawei, Samsung, Oppo…) kill background services aggressively. Ask users to exclude the app from battery optimization and allow auto-start if delivery is delayed.
+- If the app is in the background when the service must start (Android 12+), Android may refuse; the SDK then falls back to the catch-up job until the app is opened once.
+- The library manifest adds `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE` and `RECEIVE_BOOT_COMPLETED`. Apps published on Google Play must declare the special-use foreground service in the Play Console; set `directService = false` to avoid it.
+- `Irnoti.currentTransport()` returns `"fcm"`, `"direct"` or `null` (not registered yet).
 
 ## Sending your first notification
 
@@ -247,6 +284,7 @@ Irnoti.subscribe("news");
 |---|---|
 | The device does not appear in the dashboard | Check the public key; the app must be created in the project's active service. Check internet access and that `api.irnoti.ir` is reachable. |
 | Registration fails with a 403 error | The project's push service is disabled or expired, or the device limit of the current plan has been reached. Check the status in the dashboard. |
+| Notifications are not delivered on some networks | FCM is blocked there. Leave `transport` on `AUTO` (default) so the device switches to the direct channel; check `Irnoti.currentTransport()`. |
 | Notifications are not delivered | The app's Firebase project and the registered service account must be the same project. Check the notification permission (Android 13+) and Battery Optimization. |
 | Notification is not shown although sending succeeded | `smallIcon` must be a valid monochrome drawable. |
 | A link or deep link does not open | The SDK records the click through an intermediate Activity and then opens the link. Make sure the scheme is declared with an intent filter on a destination Activity. |

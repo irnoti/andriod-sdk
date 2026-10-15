@@ -3,6 +3,10 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Direct transport (devices that cannot reach FCM): foreground service for the live channel, restart after reboot. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application>
         <service
@@ -25,5 +29,29 @@
         <receiver
             android:name="ir.irnoti.sdk.IrnotiDismissReceiver"
             android:exported="false" />
+
+        <!-- Only ever started for devices on the direct transport. -->
+        <service
+            android:name="ir.irnoti.sdk.IrnotiDirectService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Keeps IRNoti's own push connection open for devices that cannot reach Firebase Cloud Messaging" />
+        </service>
+
+        <service
+            android:name="ir.irnoti.sdk.IrnotiCatchUpJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <receiver
+            android:name="ir.irnoti.sdk.IrnotiBootReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>
