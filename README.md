@@ -82,7 +82,7 @@ In `app/build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.irnoti:andriod-sdk:1.0.0")
+    implementation("com.github.irnoti:andriod-sdk:1.1.0")
 }
 ```
 
@@ -155,7 +155,8 @@ curl -X POST "https://api.irnoti.ir/v1/sdk-apps/APP_ID/send" \
 |---|---|
 | `Irnoti.init(context, config)` | Initialize the SDK and register the device |
 | `Irnoti.setNotificationsEnabled(Boolean)` | Tell the SDK whether the notification permission is granted |
-| `Irnoti.identify(externalId, aliases)` | Link the device to your user |
+| `Irnoti.identify(externalId, aliases, profile)` | Link the device to your user (and, with a profile, to a contact in your phonebook) |
+| `Irnoti.setProfile(profile)` | Send or update the user's contact details |
 | `Irnoti.logout()` | Detach the user from the device |
 | `Irnoti.subscribe(topic)` / `unsubscribe(topic)` | Subscribe to or unsubscribe from a topic |
 | `Irnoti.setTags(map)` | Set tags, or remove one by passing a `null` value |
@@ -182,6 +183,31 @@ Irnoti.identify("user-123", mapOf("phone" to "09120000000", "tier" to "gold"))
 // When the user signs out:
 Irnoti.logout()
 ```
+
+## Contact profile
+
+Send what you know about the user and they land in your IRNoti phonebook (found by phone number, otherwise created) in the
+app's own group, with this device tied to them. You can then reach the same person by SMS, bot or push campaigns on that group.
+Only `phone` is required; blank values never erase details you already stored in the panel.
+
+```kotlin
+Irnoti.identify(
+    "user-123",
+    profile = IrnotiProfile(
+        phone = "09120000000",
+        name = "Ali", lastName = "Rezaei", email = "ali@example.com", city = "Tehran", company = "Acme",
+        note = "Signed up from the app",
+        birthday = "06/31",                 // Solar Hijri MM/DD, for occasion SMS
+        groups = listOf("VIP"),             // extra phonebook groups (max 10)
+        fields = mapOf("plan" to "pro"),    // custom columns (max 12)
+    ),
+)
+// Without an external id:
+Irnoti.setProfile(IrnotiProfile(phone = "09120000000", name = "Ali"))
+```
+
+The owner can also link or edit a device's contact from the panel (Devices tab) or the server API
+`PUT /sdk-apps/:id/devices/:deviceId/contact`.
 
 ## Tags
 

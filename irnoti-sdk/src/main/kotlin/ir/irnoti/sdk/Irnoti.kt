@@ -14,14 +14,14 @@ import java.util.concurrent.Executors
  * IRNoti Android SDK entry point. Wire protocol: docs/device-api.md.
  *
  *     Irnoti.init(this, IrnotiConfig("pk_live_xxx", R.drawable.ic_stat))
- *     Irnoti.identify("user-123")
+ *     Irnoti.identify("user-123", profile = IrnotiProfile(phone = "09120000000", name = "Ali"))
  *     Irnoti.subscribe("news")
  *
  * Every call is asynchronous and safe to make before the device is registered; operations are queued on one
  * background thread and registration happens first.
  */
 object Irnoti {
-    const val VERSION = "1.0.0"
+    const val VERSION = "1.1.0"
     private const val HEARTBEAT_MS = 24L * 3600 * 1000
 
     private val worker = Executors.newSingleThreadExecutor { r -> Thread(r, "irnoti").apply { isDaemon = true } }
@@ -50,12 +50,21 @@ object Irnoti {
         authed { api.call("PATCH", "/devices/${store.deviceId}", JSONObject().put("notifications_enabled", enabled)) }
     }
 
+    /**
+     * Link the device to your user. With a [profile] the person also lands in your IRNoti phonebook (found by phone, else created)
+     * and the device is tied to them; calling again with new details updates the same contact.
+     */
     @JvmStatic @JvmOverloads
-    fun identify(externalId: String, aliases: Map<String, String> = emptyMap()) = op {
-        authed {
-            api.call("POST", "/devices/${store.deviceId}/identify",
-                JSONObject().put("external_id", externalId).put("aliases", JSONObject(aliases)))
-        }
+    fun identify(externalId: String, aliases: Map<String, String> = emptyMap(), profile: IrnotiProfile? = null) = op {
+        val body = JSONObject().put("external_id", externalId).put("aliases", JSONObject(aliases))
+        if (profile != null) body.put("profile", profile.toJson())
+        authed { api.call("POST", "/devices/${store.deviceId}/identify", body) }
+    }
+
+    /** Send or update the person's contact details without an external id (e.g. a guest who entered a phone number). */
+    @JvmStatic
+    fun setProfile(profile: IrnotiProfile) = op {
+        authed { api.call("POST", "/devices/${store.deviceId}/identify", JSONObject().put("profile", profile.toJson())) }
     }
 
     @JvmStatic
