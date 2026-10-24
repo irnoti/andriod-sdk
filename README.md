@@ -197,7 +197,7 @@ Irnoti.identify(
         phone = "09120000000",
         name = "Ali", lastName = "Rezaei", email = "ali@example.com", city = "Tehran", company = "Acme",
         note = "Signed up from the app",
-        birthday = "06/31",                 // Solar Hijri MM/DD, for occasion SMS
+        birthday = "1370/06/31",            // Solar Hijri YYYY/MM/DD (or MM/DD), for occasion SMS
         groups = listOf("VIP"),             // extra phonebook groups (max 10)
         fields = mapOf("plan" to "pro"),    // custom columns (max 12)
     ),

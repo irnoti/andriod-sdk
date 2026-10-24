@@ -4,11 +4,12 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /**
- * Who the user is, for the app owner's IRNoti phonebook. Only [phone] is required; the person is then filed (or updated) as a contact
- * of the owner and this device is tied to them, so the owner can also reach them by SMS or bot campaigns.
+ * Who the user is, for the app owner's IRNoti contacts (one list shared by SMS, email and push). Only [phone] is required;
+ * the person is then filed (or updated) as a contact of the owner and this device is tied to them, so the owner can also
+ * reach them by SMS or bot campaigns.
  * Blank values never erase what the owner already stored for the person.
  *
- *     Irnoti.identify("user-123", profile = IrnotiProfile(phone = "09120000000", name = "Ali", birthday = "06/31"))
+ *     Irnoti.identify("user-123", profile = IrnotiProfile(phone = "09120000000", name = "Ali", birthday = "1370/06/31"))
  */
 data class IrnotiProfile @JvmOverloads constructor(
     /** Mobile number in any common spelling (`0912…`, `+98912…`). */
@@ -20,7 +21,7 @@ data class IrnotiProfile @JvmOverloads constructor(
     val company: String? = null,
     /** Free text, up to 500 characters. */
     val note: String? = null,
-    /** Solar Hijri birthday as `MM/DD` (e.g. `06/31`), used for occasion SMS; a malformed value is ignored by the server. */
+    /** Solar Hijri birthday `YYYY/MM/DD` (e.g. `1370/06/31`) or `MM/DD` when the year is unknown; used for occasion SMS. A malformed value is ignored by the server. */
     val birthday: String? = null,
     /** Extra phonebook groups by name (created on first use), at most 10. */
     val groups: List<String> = emptyList(),
