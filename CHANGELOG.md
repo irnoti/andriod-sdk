@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- Docs: `IrnotiProfile.birthday` also takes the year (`YYYY/MM/DD`, e.g. `1370/06/31`); `MM/DD` still works. No code change.
+
 ## 1.1.0
 - `IrnotiProfile` and `Irnoti.identify(externalId, aliases, profile)`: send the user's contact details (phone, name, last name, e-mail, city, company, note, Solar Hijri birthday `MM/DD`, extra phonebook groups, custom fields). The person is filed in the app owner's IRNoti phonebook and the device is tied to them, so the owner can also reach them by SMS.
 - `Irnoti.setProfile(profile)`: the same without an external id.
